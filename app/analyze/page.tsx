@@ -152,10 +152,6 @@ export default function AnalyzePage() {
     }
   }
 
-  const handleSelectNone = () => {
-    setSelectedRecommendations(new Set())
-  }
-
   const handleExportRecommendations = () => {
     if (!analysisResults?.csvString) return
 
@@ -400,14 +396,6 @@ export default function AnalyzePage() {
                     className="album-tab"
                   >
                     Select All
-                  </Button>
-                  <Button
-                    onClick={handleSelectNone}
-                    variant="outline"
-                    size="sm"
-                    className="album-tab"
-                  >
-                    Select None
                   </Button>
                   <span className="ml-4 text-sm text-deep-teal self-center">
                     {selectedRecommendations.size} of {analysisResults.result.recommendations.length} selected
