@@ -84,23 +84,6 @@ export function UploadSection() {
     setUploads((prev) => ({ ...prev, [type]: file }))
   }
 
-  const handleClearUpload = (type: keyof UploadState) => {
-    setUploads((prev) => ({ ...prev, [type]: null }))
-    setMappingConfirmed((prev) => ({ ...prev, [type]: false }))
-    setMappingSelections((prev) => {
-      const newSelections = { ...prev }
-      if (type === "warehouseLocations") newSelections.locations = undefined
-      if (type === "productLocations") newSelections.productLocations = undefined
-      if (type === "productInfo") newSelections.productInfo = undefined
-      return newSelections
-    })
-    // Clear location types if warehouseLocations is cleared
-    if (type === "warehouseLocations") {
-      setLocationTypes([])
-      setLocationTypeCounts({})
-    }
-  }
-
   const handleMappingComplete = (type: keyof UploadState, mapping: Record<string, string>) => {
     if (type === "warehouseLocations") {
       const headers = uploads.warehouseLocations?.headers || []
@@ -308,7 +291,6 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV with location details</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("warehouseLocations", file)}
-                onRemoveFile={() => handleClearUpload("warehouseLocations")}
                 uploadedFile={uploads.warehouseLocations}
                 expectedColumns={[]}
               />
@@ -330,48 +312,46 @@ export function UploadSection() {
 
               {mappingConfirmed.warehouseLocations && uploads.warehouseLocations && (
                 <div className="mt-4 p-4 bg-seafoam/10 rounded-lg border border-seafoam/20">
-                  {process.env.NEXT_PUBLIC_DEBUG_TYPES === '1' && (
-                    <details className="text-sm">
-                      <summary className="cursor-pointer font-medium text-deep-teal mb-2">
-                        📊 Location Type Diagnostics
-                      </summary>
-                      <div className="space-y-2 text-deep-teal/80">
-                        <div>
-                          <strong>Type header:</strong> {mappingSelections.locations?.typeKey || "None"}
-                        </div>
-                        <div>
-                          <strong>First 8 headers:</strong> {uploads.warehouseLocations.headers.slice(0, 8).join(", ")}
-                        </div>
-                        <div>
-                          <strong>First 5 raw values:</strong>{" "}
-                          {uploads.warehouseLocations.data
-                            .slice(0, 5)
-                            .map((row) => row[mappingSelections.locations?.typeKey || ""] || "")
-                            .join(", ")}
-                        </div>
-                        <div>
-                          <strong>Detected types:</strong> {locationTypes.join(", ")} ({locationTypes.length} total)
-                        </div>
+                  <details className="text-sm">
+                    <summary className="cursor-pointer font-medium text-deep-teal mb-2">
+                      📊 Location Type Diagnostics
+                    </summary>
+                    <div className="space-y-2 text-deep-teal/80">
+                      <div>
+                        <strong>Type header:</strong> {mappingSelections.locations?.typeKey || "None"}
                       </div>
-                    </details>
-                  )}
-                  <button
-                    onClick={() => {
-                      if (uploads.warehouseLocations && mappingSelections.locations?.typeCol !== undefined) {
-                        const locationsFile = {
-                          headers: uploads.warehouseLocations.headers,
-                          rows: uploads.warehouseLocations.data,
-                        }
-                        const { types, counts } = getLocationTypes(locationsFile, mappingSelections.locations.typeCol)
-                        setLocationTypes(types)
-                        setLocationTypeCounts(counts)
-                        console.log(`🔄 Rescanned ${types.length} location types:`, types)
-                      }
-                    }}
-                    className="mt-2 px-3 py-1 bg-copper text-white rounded text-xs hover:bg-copper/80"
-                  >
-                    🔄 Rescan Types
-                  </button>
+                      <div>
+                        <strong>First 8 headers:</strong> {uploads.warehouseLocations.headers.slice(0, 8).join(", ")}
+                      </div>
+                      <div>
+                        <strong>First 5 raw values:</strong>{" "}
+                        {uploads.warehouseLocations.data
+                          .slice(0, 5)
+                          .map((row) => row[mappingSelections.locations?.typeKey || ""] || "")
+                          .join(", ")}
+                      </div>
+                      <div>
+                        <strong>Detected types:</strong> {locationTypes.join(", ")} ({locationTypes.length} total)
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (uploads.warehouseLocations && mappingSelections.locations?.typeCol !== undefined) {
+                            const locationsFile = {
+                              headers: uploads.warehouseLocations.headers,
+                              rows: uploads.warehouseLocations.data,
+                            }
+                            const { types, counts } = getLocationTypes(locationsFile, mappingSelections.locations.typeCol)
+                            setLocationTypes(types)
+                            setLocationTypeCounts(counts)
+                            console.log(`🔄 Rescanned ${types.length} location types:`, types)
+                          }
+                        }}
+                        className="mt-2 px-3 py-1 bg-copper text-white rounded text-xs hover:bg-copper/80"
+                      >
+                        🔄 Rescan Types
+                      </button>
+                    </div>
+                  </details>
                 </div>
               )}
             </div>
@@ -409,7 +389,6 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV showing current inventory placement</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("productLocations", file)}
-                onRemoveFile={() => handleClearUpload("productLocations")}
                 uploadedFile={uploads.productLocations}
                 expectedColumns={[]}
               />
@@ -472,7 +451,6 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV with product dimensions</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("productInfo", file)}
-                onRemoveFile={() => handleClearUpload("productInfo")}
                 uploadedFile={uploads.productInfo}
                 expectedColumns={[]}
               />

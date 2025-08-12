@@ -72,9 +72,11 @@ export function ColumnMapping({
 }: ColumnMappingProps) {
   const [mapping, setMapping] = useState<Record<string, string>>({})
   const [confidenceScores, setConfidenceScores] = useState<Record<string, number>>({})
+  const [customFields, setCustomFields] = useState<Record<string, string>>({})
   const autoMappingPerformed = useRef(false)
 
   const safeHeaders = Array.isArray(headers) ? headers : []
+  const allHeaders = [...safeHeaders, ...Object.values(customFields)]
 
   const synonyms: Record<string, string[]> = {
     location_name: ["location", "location_name", "bin", "slot", "loc", "location_id", "bin_id"],
@@ -97,28 +99,49 @@ export function ColumnMapping({
     }
   }, [safeHeaders])
 
+  useEffect(() => {
+    autoMappingPerformed.current = false
+  }, [headers])
+
   const performAutoMapping = () => {
     const autoMapping: Record<string, string> = {}
     const scores: Record<string, number> = {}
+
+    const normalizedHeaders = safeHeaders.map((header) => ({
+      original: header,
+      normalized: normalizeHeader(header),
+    }))
 
     requiredFields.forEach((field) => {
       const fieldSynonyms = synonyms[field.key] || [field.key]
       let bestMatch = ""
       let bestScore = 0
 
-      safeHeaders.forEach((header) => {
-        const normalizedHeader = normalizeHeader(header)
-        fieldSynonyms.forEach((synonym) => {
-          const normalizedSynonym = normalizeHeader(synonym)
-          const similarity = calculateSimilarity(normalizedHeader, normalizedSynonym)
-          if (similarity > bestScore) {
-            bestScore = similarity
-            bestMatch = header
-          }
-        })
-      })
+      for (const synonym of fieldSynonyms) {
+        const normalizedSynonym = normalizeHeader(synonym)
+        const exactMatch = normalizedHeaders.find((h) => h.normalized === normalizedSynonym)
+        if (exactMatch) {
+          bestMatch = exactMatch.original
+          bestScore = 1.0
+          break
+        }
+      }
 
-      if (bestScore > 0.3) {
+      if (!bestMatch) {
+        const threshold = fileType === "Product Information" ? 0.85 : 0.8
+
+        for (const headerObj of normalizedHeaders) {
+          for (const synonym of fieldSynonyms) {
+            const similarity = calculateSimilarity(headerObj.normalized, normalizeHeader(synonym))
+            if (similarity > bestScore && similarity >= threshold) {
+              bestMatch = headerObj.original
+              bestScore = similarity
+            }
+          }
+        }
+      }
+
+      if (bestMatch && bestScore >= (fileType === "Product Information" ? 0.85 : 0.8)) {
         autoMapping[field.key] = bestMatch
         scores[field.key] = bestScore
       }
@@ -138,6 +161,14 @@ export function ColumnMapping({
     setMapping(newMapping)
     setConfidenceScores(newScores)
     onMappingComplete(newMapping)
+  }
+
+  const handleCustomField = (requiredField: string, customName: string) => {
+    if (customName.trim()) {
+      const newCustomFields = { ...customFields, [requiredField]: customName.trim() }
+      setCustomFields(newCustomFields)
+      handleFieldMapping(requiredField, customName.trim())
+    }
   }
 
   const isComplete =
@@ -184,9 +215,10 @@ export function ColumnMapping({
             headers={safeHeaders}
             mapping={mapping}
             confidenceScores={confidenceScores}
+            customFields={customFields}
             onFieldMapping={handleFieldMapping}
+            onCustomField={handleCustomField}
             isRequired={fileType !== "Product Information" || field.key === "sku"}
-            isConfirmed={isConfirmed}
           />
         ))}
       </div>
@@ -221,6 +253,7 @@ export function ColumnMapping({
             onClick={() => {
               setMapping({})
               setConfidenceScores({})
+              setCustomFields({})
               onClearMapping()
             }}
             className="album-tab text-muted-ink border-border-soft hover:bg-muted/20"
