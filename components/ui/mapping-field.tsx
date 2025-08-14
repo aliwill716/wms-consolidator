@@ -11,6 +11,7 @@ interface MappingFieldProps {
   confidenceScores: Record<string, number>
   onFieldMapping: (fieldKey: string, selectedHeader: string) => void
   isRequired?: boolean
+  isConfirmed?: boolean
 }
 
 export function MappingField({
@@ -20,6 +21,7 @@ export function MappingField({
   confidenceScores,
   onFieldMapping,
   isRequired = true,
+  isConfirmed = false,
 }: MappingFieldProps) {
   const isFieldMapped = !!mapping[field.key]
   const score = confidenceScores[field.key]
@@ -42,12 +44,20 @@ export function MappingField({
 
   return (
     <div
-      className="copper-glitter-banner p-4 rounded-2xl relative overflow-hidden"
-      style={{
-        background: `url('/textures/copper-glitter.png') center/cover fixed, 
-                    linear-gradient(135deg, var(--copper-dark) 0%, var(--copper-mid) 40%, var(--copper-light) 100%)`,
-        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 20px rgba(232, 106, 62, 0.3)",
-      }}
+      className={
+        isConfirmed
+          ? "p-4 rounded-2xl relative overflow-hidden bg-gradient-to-tr from-[var(--copper-1)] via-[var(--copper-2)] to-[var(--copper-3)] text-white border-none shadow-lg"
+          : "copper-glitter-banner p-4 rounded-2xl relative overflow-hidden"
+      }
+      style={
+        isConfirmed
+          ? undefined
+          : {
+              background: `url('/textures/copper-glitter.png') center/cover fixed, 
+                          linear-gradient(135deg, var(--copper-dark) 0%, var(--copper-mid) 40%, var(--copper-light) 100%)`,
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 20px rgba(232, 106, 62, 0.3)",
+            }
+      }
     >
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
@@ -82,17 +92,21 @@ export function MappingField({
           <Select value={mapping[field.key] || ""} onValueChange={(value) => onFieldMapping(field.key, value)}>
             <SelectTrigger
               className={
-                isFieldMapped
-                  ? "h-10 rounded-xl shadow-sm text-white border-none focus:ring-2 focus:ring-[#FF9A63] copper-select"
-                  : "bg-white border-deep-teal text-deep-teal h-10 rounded-xl shadow-sm"
+                isConfirmed
+                  ? "h-10 rounded-xl shadow-sm text-white border-none focus:ring-2 focus:ring-[#FF9A63] bg-gradient-to-r from-[var(--copper-1)] to-[var(--copper-2)]"
+                  : isFieldMapped
+                    ? "h-10 rounded-xl shadow-sm text-white border-none focus:ring-2 focus:ring-[#FF9A63] copper-select"
+                    : "bg-white border-deep-teal text-deep-teal h-10 rounded-xl shadow-sm"
               }
               style={
-                isFieldMapped
-                  ? {
-                      background: "linear-gradient(135deg, #E86A3E, #FF9A63, #FFB17A)",
-                      border: "1px solid #B9502D",
-                    }
-                  : undefined
+                isConfirmed
+                  ? undefined
+                  : isFieldMapped
+                    ? {
+                        background: "linear-gradient(135deg, #E86A3E, #FF9A63, #FFB17A)",
+                        border: "1px solid #B9502D",
+                      }
+                    : undefined
               }
             >
               <SelectValue placeholder="Select column..." />

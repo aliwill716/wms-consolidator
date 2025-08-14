@@ -217,7 +217,7 @@ export function UploadSection() {
       </div>
 
       {(locationTypes.length > 0 || typeDetectionError) && (
-        <Card className="album-card p-4 bg-seafoam-light/10 border-seafoam-mid/30">
+        <Card className="album-card p-4 bg-[#FFECE6] border-[#FF7F50]">
           <div className="space-y-2">
             {typeDetectionError ? (
               <div className="text-sm text-red-600 bg-red-50 p-2 rounded border">
@@ -270,7 +270,7 @@ export function UploadSection() {
         <Card
           className={`album-card p-4 transition-all duration-300 ${
             uploads.warehouseLocations?.mapping && mappingConfirmed.warehouseLocations
-              ? "border-seafoam-dark/60 bg-seafoam-light/10"
+              ? "border-[#FF7F50] bg-[#FFECE6]"
               : uploads.warehouseLocations?.mapping
                 ? "border-copper-mid/60 bg-copper-light/10"
                 : "hover:shadow-lg"
@@ -369,7 +369,7 @@ export function UploadSection() {
         <Card
           className={`album-card p-4 transition-all duration-300 ${
             uploads.productLocations?.mapping && mappingConfirmed.productLocations
-              ? "border-seafoam-dark/60 bg-seafoam-light/10"
+              ? "border-[#FF7F50] bg-[#FFECE6]"
               : uploads.productLocations?.mapping
                 ? "border-copper-mid/60 bg-copper-light/10"
                 : "hover:shadow-lg"
@@ -432,7 +432,7 @@ export function UploadSection() {
         <Card
           className={`album-card p-4 transition-all duration-300 ${
             uploads.productInfo?.mapping && mappingConfirmed.productInfo
-              ? "border-seafoam-dark/60 bg-seafoam-light/10"
+              ? "border-[#FF7F50] bg-[#FFECE6]"
               : uploads.productInfo?.mapping
                 ? "border-copper-mid/60 bg-copper-light/10"
                 : "hover:shadow-lg"
