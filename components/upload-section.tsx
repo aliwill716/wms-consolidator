@@ -210,25 +210,6 @@ export function UploadSection() {
                   >
                     Data Audit
                   </button>
-                  <Button
-                    onClick={() => {
-                      if (uploads.warehouseLocations && mappingSelections.locations?.typeCol !== undefined) {
-                        const locationsFile = {
-                          headers: uploads.warehouseLocations.headers,
-                          rows: uploads.warehouseLocations.data,
-                        }
-                        const { types, counts } = getLocationTypes(locationsFile, mappingSelections.locations.typeCol)
-                        setLocationTypes(types)
-                        setLocationTypeCounts(counts)
-                        console.log(`🔄 Rescanned ${types.length} location types:`, types)
-                      }
-                    }}
-                    size="sm"
-                    variant="outline"
-                    className="text-xs px-2 py-1 h-auto bg-transparent"
-                  >
-                    Rescan Types
-                  </Button>
                 </div>
               </div>
             )}
@@ -310,7 +291,7 @@ export function UploadSection() {
                 </div>
               )}
 
-              {mappingConfirmed.warehouseLocations && uploads.warehouseLocations && (
+              {mappingConfirmed.warehouseLocations && uploads.warehouseLocations && false && (
                 <div className="mt-4 p-4 bg-seafoam/10 rounded-lg border border-seafoam/20">
                   <details className="text-sm">
                     <summary className="cursor-pointer font-medium text-deep-teal mb-2">
@@ -321,11 +302,11 @@ export function UploadSection() {
                         <strong>Type header:</strong> {mappingSelections.locations?.typeKey || "None"}
                       </div>
                       <div>
-                        <strong>First 8 headers:</strong> {uploads.warehouseLocations.headers.slice(0, 8).join(", ")}
+                        <strong>First 8 headers:</strong> {uploads.warehouseLocations?.headers.slice(0, 8).join(", ")}
                       </div>
                       <div>
                         <strong>First 5 raw values:</strong>{" "}
-                        {uploads.warehouseLocations.data
+                        {uploads.warehouseLocations?.data
                           .slice(0, 5)
                           .map((row) => row[mappingSelections.locations?.typeKey || ""] || "")
                           .join(", ")}
