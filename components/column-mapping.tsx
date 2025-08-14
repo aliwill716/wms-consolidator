@@ -207,6 +207,7 @@ export function ColumnMapping({
             confidenceScores={confidenceScores}
             onFieldMapping={handleFieldMapping}
             isRequired={fileType !== "Product Information" || field.key === "sku"}
+            isConfirmed={isConfirmed}
           />
         ))}
       </div>
