@@ -84,6 +84,31 @@ export function UploadSection() {
     setUploads((prev) => ({ ...prev, [type]: file }))
   }
 
+  const handleFileRemove = (type: keyof UploadState) => {
+    // Remove the file from uploads state
+    setUploads((prev) => ({ ...prev, [type]: null }))
+    
+    // Reset mapping confirmation for this file type
+    setMappingConfirmed((prev) => ({ ...prev, [type]: false }))
+    
+    // Reset mapping selections for this file type
+    setMappingSelections((prev) => {
+      if (type === "warehouseLocations") {
+        return { ...prev, locations: undefined }
+      } else {
+        return { ...prev, [type]: undefined }
+      }
+    })
+    
+    // Reset location types if removing warehouse locations
+    if (type === "warehouseLocations") {
+      setLocationTypes([])
+      setLocationTypeCounts({})
+      setTypeDetectionError("")
+      setShowDataAudit(false)
+    }
+  }
+
   const handleMappingComplete = (type: keyof UploadState, mapping: Record<string, string>) => {
     if (type === "warehouseLocations") {
       const headers = uploads.warehouseLocations?.headers || []
@@ -272,6 +297,7 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV with location details</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("warehouseLocations", file)}
+                onFileRemove={() => handleFileRemove("warehouseLocations")}
                 uploadedFile={uploads.warehouseLocations}
                 expectedColumns={[]}
               />
@@ -370,6 +396,7 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV showing current inventory placement</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("productLocations", file)}
+                onFileRemove={() => handleFileRemove("productLocations")}
                 uploadedFile={uploads.productLocations}
                 expectedColumns={[]}
               />
@@ -432,6 +459,7 @@ export function UploadSection() {
               <p className="text-muted-ink text-sm mb-3">CSV with product dimensions</p>
               <FileUpload
                 onFileUpload={(file) => handleFileUpload("productInfo", file)}
+                onFileRemove={() => handleFileRemove("productInfo")}
                 uploadedFile={uploads.productInfo}
                 expectedColumns={[]}
               />

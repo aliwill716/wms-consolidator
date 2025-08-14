@@ -16,11 +16,12 @@ interface UploadedFile {
 
 interface FileUploadProps {
   onFileUpload: (file: UploadedFile) => void
+  onFileRemove: () => void
   uploadedFile: UploadedFile | null
   expectedColumns: string[]
 }
 
-export function FileUpload({ onFileUpload, uploadedFile, expectedColumns }: FileUploadProps) {
+export function FileUpload({ onFileUpload, onFileRemove, uploadedFile, expectedColumns }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -94,6 +95,7 @@ export function FileUpload({ onFileUpload, uploadedFile, expectedColumns }: File
 
   const removeFile = () => {
     setError(null)
+    onFileRemove()
     // Reset the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
