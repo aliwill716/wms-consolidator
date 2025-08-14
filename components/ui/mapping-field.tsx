@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
 import { CheckCircle, AlertCircle } from "lucide-react"
 
 interface MappingFieldProps {
@@ -10,9 +9,7 @@ interface MappingFieldProps {
   headers: string[]
   mapping: Record<string, string>
   confidenceScores: Record<string, number>
-  customFields: Record<string, string>
   onFieldMapping: (fieldKey: string, selectedHeader: string) => void
-  onCustomField: (fieldKey: string, customName: string) => void
   isRequired?: boolean
 }
 
@@ -21,14 +18,9 @@ export function MappingField({
   headers,
   mapping,
   confidenceScores,
-  customFields,
   onFieldMapping,
-  onCustomField,
   isRequired = true,
 }: MappingFieldProps) {
-  const [showCustomInput, setShowCustomInput] = useState(false)
-
-  const allHeaders = [...headers, ...Object.values(customFields)]
   const isFieldMapped = !!mapping[field.key]
   const score = confidenceScores[field.key]
 
@@ -46,13 +38,6 @@ export function MappingField({
         <span>{badgeText}</span>
       </div>
     )
-  }
-
-  const handleCustomFieldSubmit = (value: string) => {
-    if (value.trim()) {
-      onCustomField(field.key, value.trim())
-      setShowCustomInput(false)
-    }
   }
 
   return (
@@ -113,38 +98,13 @@ export function MappingField({
               <SelectValue placeholder="Select column..." />
             </SelectTrigger>
             <SelectContent className="bg-card-surface border-border-soft rounded-xl">
-              {allHeaders.map((header) => (
+              {headers.map((header) => (
                 <SelectItem key={header} value={header} className="text-deep-teal hover:bg-seafoam-light rounded-lg">
                   {header}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-
-          {showCustomInput ? (
-            <div className="flex gap-1">
-              <Input
-                placeholder="Enter column name"
-                className="text-xs h-8 bg-white border-deep-teal text-deep-teal rounded-lg"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleCustomFieldSubmit(e.currentTarget.value)
-                  }
-                  if (e.key === "Escape") {
-                    setShowCustomInput(false)
-                  }
-                }}
-                autoFocus
-              />
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowCustomInput(true)}
-              className="text-xs text-white/80 hover:text-white transition-colors text-left drop-shadow-sm"
-            >
-              Can't find it? → Enter custom name
-            </button>
-          )}
         </div>
       </div>
     </div>
