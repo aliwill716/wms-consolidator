@@ -72,11 +72,9 @@ export function ColumnMapping({
 }: ColumnMappingProps) {
   const [mapping, setMapping] = useState<Record<string, string>>({})
   const [confidenceScores, setConfidenceScores] = useState<Record<string, number>>({})
-  const [customFields, setCustomFields] = useState<Record<string, string>>({})
   const autoMappingPerformed = useRef(false)
 
   const safeHeaders = Array.isArray(headers) ? headers : []
-  const allHeaders = [...safeHeaders, ...Object.values(customFields)]
 
   const synonyms: Record<string, string[]> = {
     location_name: ["location", "location_name", "bin", "slot", "loc", "location_id", "bin_id"],
@@ -163,14 +161,6 @@ export function ColumnMapping({
     onMappingComplete(newMapping)
   }
 
-  const handleCustomField = (requiredField: string, customName: string) => {
-    if (customName.trim()) {
-      const newCustomFields = { ...customFields, [requiredField]: customName.trim() }
-      setCustomFields(newCustomFields)
-      handleFieldMapping(requiredField, customName.trim())
-    }
-  }
-
   const isComplete =
     fileType === "Product Information"
       ? !!mapping.sku // Only SKU is required for Product Info
@@ -215,9 +205,7 @@ export function ColumnMapping({
             headers={safeHeaders}
             mapping={mapping}
             confidenceScores={confidenceScores}
-            customFields={customFields}
             onFieldMapping={handleFieldMapping}
-            onCustomField={handleCustomField}
             isRequired={fileType !== "Product Information" || field.key === "sku"}
           />
         ))}
@@ -253,10 +241,9 @@ export function ColumnMapping({
             onClick={() => {
               setMapping({})
               setConfidenceScores({})
-              setCustomFields({})
               onClearMapping()
             }}
-            className="album-tab text-muted-ink border-border-soft hover:bg-muted/20"
+            className="album-tab text-deep-teal border-border-soft hover:bg-muted/20"
           >
             Clear
           </Button>
